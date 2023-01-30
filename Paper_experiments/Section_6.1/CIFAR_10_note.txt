@@ -1,0 +1,5 @@
+The CIFAR-10 single parameter experiments can be obtain using the script located in Section 6.3.
+
+To obtain single parameter experiments for r, set epsilon and alpha to 0. There should be no misspecification or noise.
+
+To obtain single parameter experiments for alpha, set epsilon and r to 0. The frac should be 1 and there should be no noise.
