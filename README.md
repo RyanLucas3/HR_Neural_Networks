@@ -7,7 +7,7 @@
 </p>
 
 ```python
-git clone https://github.com/MohammedAmine-Bennouna/HRLearning.git
+pip install HR_Neural_Networks
 ```
 
 ### This code base is an open-source implementation of "Certified Robust Neural Networks: Generalization and Corruption Resistance".
