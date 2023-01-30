@@ -7,7 +7,7 @@
 </p>
 
 ```python
-git clone https://github.com/RyanLucas3/Holistic-Robust-Neural-Networks.git
+git clone https://github.com/RyanLucas3/HR_Neural_Networks.git
 ```
 
 ### This code base is an open-source implementation of "Certified Robust Neural Networks: Generalization and Corruption Resistance".
