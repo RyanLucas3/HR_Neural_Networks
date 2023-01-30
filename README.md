@@ -62,6 +62,8 @@ The interaction between each parameter is also relevant. For example, when used 
 
  HR can be implemented for neural network training with minimal disruption to typical training pipelines. The core output of the code is a Pytorch loss function which can be optimized via ordinary backpropagation commands. For example, see below for a contrast between regular training and HR training.
  
+ **Note: this example is not fully self-contained and is just to give an indication for experienced Pytorch users**. See our [MNIST colab tutorial](https://colab.research.google.com/drive/1d5BZvCDGWHS_UxFR77YneKGB3mMGR-tY?usp=sharing) for a fully worked example.
+ 
 ### Natural training
 
 ```python
