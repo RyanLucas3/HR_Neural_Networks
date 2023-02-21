@@ -68,7 +68,7 @@ The interaction between each parameter is also relevant. For example, when used 
 
 ```python
 
-criterion = F.cross_entropy(reduction = 'mean')
+criterion = nn.CrossEntropyLoss(reduction="mean")
 
 def train(model, device, train_loader, optimizer, epoch):
     model.train()
@@ -85,7 +85,7 @@ def train(model, device, train_loader, optimizer, epoch):
 
 ```python
 
-criterion = F.cross_entropy(reduction = 'none') # note the change from mean -> none
+criterion = nn.CrossEntropyLoss(reduction="none") # note the change from mean -> none
 
 ########### HR Model Instantiation ###############
 
