@@ -7,16 +7,16 @@
 </p>
 
 ```python
-pip install HR_Neural_Networks
+git clone https://github.com/MohammedAmine-Bennouna/HRLearning.git
 ```
 
 ### This code base is an open-source implementation of "Certified Robust Neural Networks: Generalization and Corruption Resistance".
 
-We introduce a novel learning approach which enjoys certified protection against data poisoning, evasion attacks, and statistical error based on Distributionally Robust Optimization (DRO).
-Our approach is designed to protect simultaneously against these different types of data corruptions which can arise during the training and deployment of deep learning models. Protection is controlled by three robustness parameters: 
-* $\alpha$: controls protection against generic data poisoning attacks at training time. This encompasses any kind of corruption to the training instances; for instance training examples that have been obscured or which are wholly misspecified.
-* $\mathcal{N}$: provides protection against perturbations to the testing examples, also known as evasion attacks. A common and well-studied example of evasion is the adversarial attack. Here we choose $\mathcal{N} =$ { $\delta: ||\delta|| \leq \epsilon$ }, where $\epsilon>0$. 
-* $r$: protects the network from overfitting to the training instances of a small random sample. The parameter thus ensures strong generalization given a small data size.
+Holistic Robust Learning (HR) is a learning approach which provides _certified_ protection against data poisoning and evasion attacks, while enjoying _guaranteed_ generalization. HR minimizes a loss function that is guaranteed to be an upper bound on the out-of-sample performance of the trained networks with high probability. Hence, when training with HR, the out-of-sample performance is at least as good as the observed in-sample performance. This is both guaranteed theoretically and verified empirically.
+Robustness is controlled by three parameters: 
+* $\alpha$: controls protection against generic data poisoning at training time. This encompasses any kind of corruption in the training data; for instance training examples that have been obscured or which are wholly misspecified. For a given chosen $\alpha$, HR is certified when up to a fraction $\alpha$ of data points are corrupted.
+* $\epsilon$: controls protection against small perturbations to the testing or training examples, such as noise or evasive attacks. HR is certified to any adversarial attacks limited to the norm ball { $\delta: ||\delta|| \leq \epsilon$ }. Current implementation supports $\ell_2$ and $\ell_\infty$ balls.
+* $r$: controls protection against overfitting to the training instances. The parameter sets the desired strength of generalization and how conservative is training. It also reduces variance to randomness of the training data. HR in-sample loss is guaranteed to be an upper bound on the out-of-sample loss with probability $1-e^{-nr +O(1)}$ where $n$ is the data size.
 
 We provide a robust loss function that can be automatically differentiated in Pytorch as well as framework-agnostic importance weights that can be integrated with Tensorflow or another deep learning framework. Doing so involves minimal disruption to standard training pipelines.
 
@@ -26,49 +26,16 @@ Click here for a **Colab tutorial applying HR for MNIST classification**:
   <img width="247.8" height="42.6" src="Misc/colab.svg"></a>
 </p>
 
-## Background
-
-HR assumes there is a true clean distribution $\mathcal{D}$, from which we do not obtain samples directly. Rather, we have access only to a poisoned dataset $\mathcal{D}_n$. 
-
-Given that $\mathcal{D}_n$  is unlikely to correspond exactly to $\mathcal{D}$ we have that the optimizer:
-
-```math
-\begin{equation}
-\underset{\theta \in \Theta}{\text{min}} \: \mathbb{E}_{(X, Y) \sim \mathcal{D}_n} [\ell(\theta,X, Y)]
-\end{equation}
-```
-
-is unlikely to correspond to the parameters that optimize the out-of-sample loss.
-
-HR mitigates this issue by constructing a ball (or ambiguity set) $\mathcal{U}_{\mathcal{N}, \alpha, r}(\mathcal{D_n})$  around the samples and optimizing the worst-case loss realizing in this set. With the help of our three robustness parameters $(\mathcal{N}, \alpha, r)$, HR respectively protects against the worst-case evasion, poisoning and small-sample overfitting that the model can experience:
-
-```math
-\begin{equation}
-\min _{\theta \in \Theta} \max_{u \in \mathcal{U}_{\mathcal{N}, \alpha, r}(\mathcal{D}_n)} \mathbb{E}_{(X, Y) \sim u}[\ell(\theta, X, Y)]
-\end{equation}
-```
-
-<p align="center">
-  <img width="300" height="300" src="Misc/DRO_gif.gif">
-</p>
-
-The HR objective function is an upper bound on the test performance with high probability $1-e^{-rn+O(1)}$ when less then a fraction $\alpha$ of all $n$ samples are tampered by poisoning, and the evasion corruption is bounded within the set $\mathcal{N}$.
-
-The parameters $\mathcal{N}, r$ and $\alpha$ are important design choices. If one suspects that one source of overfitting is more dominant than others, they may choose a higher value for a certain parameter. For instance, if it is believed that more noise is present in the data, then greater robustness to noise (that is, higher $\epsilon$ or a broader set $\mathcal{N}$) may be desired. If the dataset is very small in size, then higher $r$ may be preferred as the observed empirical distribution is less likely to be a good proxy for the true unknown distribution. If the data is not very clean, higher $\alpha$ may be desired to achieve robustness against poisoned training examples.
-
-The interaction between each parameter is also relevant. For example, when used in conjunction $\mathcal{N}$ and $r$ can provide protection to the well-known phenomenon of  [robust overfitting](https://arxiv.org/abs/2002.11569), which occurs when adversarially robust models strongly overfit towards the end of training. Similarly, robustness to poisoning and statistical error via $\alpha$ and $r$ can be used when only a small, low-quality dataset is available.
 
 ## Training of HR Neural Networks in Pytorch
 
- HR can be implemented for neural network training with minimal disruption to typical training pipelines. The core output of the code is a Pytorch loss function which can be optimized via ordinary backpropagation commands. For example, see below for a contrast between regular training and HR training.
- 
- **Note: this example is not fully self-contained and is just to give an indication for experienced Pytorch users**. See our [MNIST colab tutorial](https://colab.research.google.com/drive/1d5BZvCDGWHS_UxFR77YneKGB3mMGR-tY?usp=sharing) for a fully worked example.
+HR can be implemented for neural network training with minimal disruption to typical training pipelines. The core output of the code is a Pytorch loss function which can be optimized via ordinary backpropagation commands. For example, see below for a contrast between regular training and HR training where the difference is basically in one line.
  
 ### Natural training
 
 ```python
 
-criterion = nn.CrossEntropyLoss(reduction="mean")
+criterion = F.cross_entropy(reduction = 'mean')
 
 def train(model, device, train_loader, optimizer, epoch):
     model.train()
@@ -82,10 +49,17 @@ def train(model, device, train_loader, optimizer, epoch):
  ```
 
 ### HR training
+You can install HR simply with a `pip` command
+
+```python
+!pip install HR_Neural_Networks
+```
+
+Training with the HR loss requires then only to change one line of the training code.
 
 ```python
 
-criterion = nn.CrossEntropyLoss(reduction="none") # note the change from mean -> none
+criterion = F.cross_entropy(reduction = 'none') # note the change from mean -> none
 
 ########### HR Model Instantiation ###############
 
@@ -117,3 +91,30 @@ def train(HR, model, device, train_loader, optimizer, epoch):
         HR_loss.backward()
         optimizer.step()
 ```
+
+## Background
+
+HR considers the following setting of learning under corruption: $n$ data points are first sampled from a true clean distribution $\mathcal{D}$ and then less than $\alpha n$ data points are corrupted (poisoning attacks), resulting in an observed corrupted empirical distribution 
+$\mathcal{D}\_n$
+constituting training data. At test time, samples from $\mathcal{D}$ are perturbed with noise in a set $\mathcal{N}$ (evasive attacks), and the model is tested with distribution $\mathcal{D}\_{\text{test}}$ of perturbed instances.
+
+HR seeks to minimizes an upper bound on the testing loss constructed using the provided corrupted training data. This upper bound–HR loss–is designed using distributionally robust optimization (DRO), by constructing an ambiguity set $\mathcal{U}\_{\mathcal{N}, \alpha, r}(\mathcal{D}\_n)$ around the corrupted empirical distribution $\mathcal{D}\_n$ and optimizing the worst-case loss over distributions realizing in this set. The ambiguity set is constructed to contain the testing distribution $\mathcal{D}\_{\text{test}}$ with high probability. The HR loss writes therefore as
+
+```math
+\begin{equation}
+\max_{\mathcal{D}' \in \mathcal{U}_{\mathcal{N}, \alpha, r}(\mathcal{D}_n)} \mathbb{E}_{(X, Y) \sim \mathcal{D}'}[\ell(\theta, X, Y)]
+\end{equation}
+```
+where $\ell$ is the given loss function and $\theta$ the network's parameters.
+
+<p align="center">
+  <img width="300" height="300" src="Misc/DRO_gif.gif">
+</p>
+
+The HR objective function is an upper bound on the test performance with probability $1-e^{-rn+O(1)}$ when less then a fraction $\alpha$ of all $n$ samples are tampered by poisoning, and the evasion corruption is bounded within the set $\mathcal{N}$.
+The parameters $\mathcal{N}, r$ and $\alpha$ hence are important design choices and directly reflect the desired robustness. In this implementation, we chose $\mathcal{N} =$ { $\delta: ||\delta|| \leq \epsilon $}.
+
+The HR loss is also proven to be a ``tight'' upper bound. That is, corruption and generalization are efficiently captured and the provided robustness is not overly conservative. In particular, HR captures efficiently the interaction between generalization and corruption. 
+For example, when used in conjunction $\mathcal{N}$ and $r$ can provide protection to the well-known phenomenon of  [robust overfitting](https://arxiv.org/abs/2002.11569), where adversarial training exhibit severe overfitting.
+
+
