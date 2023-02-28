@@ -13,7 +13,7 @@ pip install HR_Neural_Networks
 ### This code base is an open-source implementation of "Certified Robust Neural Networks: Generalization and Corruption Resistance".
 
 We introduce a novel learning approach which enjoys certified protection against data poisoning, evasion attacks, and statistical error based on Distributionally Robust Optimization (DRO).
-Our approach is designed to protect simultaneously against all aforementioned types of data corruptions which may arise during the training and deployment of deep learning models. Protection is controlled by three robustness parameters: 
+Our approach is designed to protect simultaneously against these different types of data corruptions which can arise during the training and deployment of deep learning models. Protection is controlled by three robustness parameters: 
 * $\alpha$: controls protection against generic data poisoning attacks at training time. This encompasses any kind of corruption to the training instances; for instance training examples that have been obscured or which are wholly misspecified.
 * $\mathcal{N}$: provides protection against perturbations to the testing examples, also known as evasion attacks. A common and well-studied example of evasion is the adversarial attack. Here we choose $\mathcal{N} =$ { $\delta: ||\delta|| \leq \epsilon$ }, where $\epsilon>0$. 
 * $r$: protects the network from overfitting to the training instances of a small random sample. The parameter thus ensures strong generalization given a small data size.
