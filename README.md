@@ -107,10 +107,6 @@ HR seeks to minimizes an upper bound on the testing loss constructed using the p
 ```
 where $\ell$ is the given loss function and $\theta$ the network's parameters.
 
-<p align="center">
-  <img width="300" height="300" src="Misc/DRO_gif.gif">
-</p>
-
 The HR objective function is an upper bound on the test performance with probability $1-e^{-rn+O(1)}$ when less then a fraction $\alpha$ of all $n$ samples are tampered by poisoning, and the evasion corruption is bounded within the set $\mathcal{N}$.
 The parameters $\mathcal{N}, r$ and $\alpha$ hence are important design choices and directly reflect the desired robustness. In this implementation, we chose $\mathcal{N} =$ { $\delta: ||\delta|| \leq \epsilon $}.
 
