@@ -22,6 +22,7 @@ class HR_Neural_Networks:
                  α_choice,
                  r_choice,
                  ϵ_choice,
+                 learning_approach = "HD",
                  adversarial_steps=10,
                  adversarial_step_size=0.2,
                  noise_set = "l-2",
@@ -35,6 +36,7 @@ class HR_Neural_Networks:
         self.adversarial_step_size = adversarial_step_size
         self.numerical_eps = 0.000001
         self.noise_set = noise_set
+        self.learning_approach = learning_approach
         self.output_return = output_return
  
         if loss_fn == None:
@@ -59,22 +61,81 @@ class HR_Neural_Networks:
         # Handling choice of epsilon. We wont set equal to numerical eps, since running PGD is very slow
         self.ϵ_choice = ϵ_choice
         
-        # Initialising either HR to be used in DPP. DPP is an approach where the decision variables,
+        # Initialising either HR or HD to be used in DPP. DPP is an approach where the decision variables,
         # constraints and problem are set up just once. Only parameters (here loss and worst-case) 
         # are reinitialised at each step, which is much faster than reinstating the entire problem. 
+        if self.learning_approach == "HR":
+
+            self._initialise_HR_problem()
+
+        elif self.learning_approach == "HD":
             
-        self._initialise_HR_problem()
+            self._initialise_HD_problem()
 
         self._initialise_adversarial_setup()
 
         if normalisation_used == None:
-            self.normalisation_used = None
+            pass
 
         else:
             self.adversarial_attack_train.set_normalization_used(
                 mean=normalisation_used[0], std=normalisation_used[1])
 
     def _initialise_HR_problem(self):
+
+        # The primal - inner maximisation problem.
+        N = self.train_batch_size
+
+        Pemp = 1/N * np.ones(N)  # Change for a diffrent Pemp
+
+        # Parameter controlling robustness to misspecification
+        α = cp.Constant(self.α_choice)
+        # Parameter controlling robustness to statistical error
+        r = cp.Constant(self.r_choice)
+
+        # Primal variables and constraints, indep of problem
+        self.p = cp.Variable(shape=N+1, nonneg=True)
+        q = cp.Variable(shape=N+1, nonneg=True)
+        s = cp.Variable(shape=N, nonneg=True)
+
+        self.nn_loss = cp.Parameter(shape=N)
+        self.nn_loss.value = [1/N]*N  # Initialising
+
+        self.worst = cp.Parameter()
+        self.worst.value = 0.01  # Initialising
+
+        # Objective function
+        objective = cp.Maximize(
+            cp.sum(cp.multiply(self.p[0:N], self.nn_loss)) + self.p[N] * self.worst)
+
+        # Simplex constraints
+        simplex_constraints = [cp.sum(self.p) == 1, cp.sum(q) == 1]
+
+        # KL constr -----
+        t = cp.Variable(name="t", shape=N)
+
+        # Exponential cone constraints
+        exc_constraints = []
+
+        exc_constraints.append(
+            cp.constraints.exponential.ExpCone(-1*t, Pemp, q[:-1]))
+
+        # ------------------------
+        extra_constraints = [cp.sum(t) <= r,
+                             cp.sum(s) <= α,
+                             cp.sum(s) + q[N] == self.p[N],
+                             self.p[0:N] + s == q[0:N]]
+        # ------------------------
+
+        # Combining constraints to a single list
+        complete_constraints = simplex_constraints + exc_constraints + extra_constraints
+
+        # Problem definition
+        self.model = cp.Problem(
+            objective=objective,
+            constraints=complete_constraints)
+
+    def _initialise_HD_problem(self):
 
         # The primal - inner maximisation problem.
         N = self.train_batch_size
@@ -156,11 +217,14 @@ class HR_Neural_Networks:
            Returning the weighted loss as a tensor Pytorch can autodiff'''
 
         if self.ϵ_choice > 0:
+  
             adv = self.adversarial_attack_train(inputs, targets)
             outputs = self.NN_model(adv)
             inf_loss = self.loss_fn(outputs, targets)
+
         else:
-            adv = inputs
+            outputs = self.NN_model(inputs)
+            inf_loss = self.loss_fn(outputs, targets)
         
         # May in the end be different from the training batch size,
         batch_size = len(inf_loss)
@@ -174,8 +238,17 @@ class HR_Neural_Networks:
                 "Warning - changing the batch_size from the pre-specified train_batch_size can cause the algorithm to be slower.")
             
             self.train_batch_size = batch_size
+            
+            
+            
+            if self.learning_approach == "HR":
 
-            self._initialise_HR_problem()
+                self._initialise_HR_problem()
+
+            elif self.learning_approach == "HD":
+
+                self._initialise_HD_problem()
+
 
         if self.r_choice > self.numerical_eps or self.α_choice > self.numerical_eps:
             
@@ -186,6 +259,7 @@ class HR_Neural_Networks:
                 self.nn_loss.value = inf_loss
             
             self.worst.value = np.max(self.nn_loss.value) # DPP step
+            
             
             try:
                 self.model.solve(solver=cp.ECOS) 
@@ -200,13 +274,12 @@ class HR_Neural_Networks:
                     self.nn_loss.value += self.numerical_eps # Small amt of noise incase its a numerical issue
                     self.worst.value = np.max(self.nn_loss.value) # Must also re-instate worst-case for DPP
                     self.model.solve(solver=cp.MOSEK)
-                    
                     # MOSEK is the second fastest,
                     # But also occasionally fails when α and r are too large.
                 
                 except:
                     self.model.solve(solver=cp.SCS)
-                    # Rarely do we need this here, but can be a good error catch.
+                    # Last resort. Rarely needed.
  
 
             weights = Variable(torch.from_numpy(self.p.value),
@@ -233,8 +306,4 @@ class HR_Neural_Networks:
             elif self.output_return == 'weights':
                 
                 return [1/self.train_batch_size for i in range(self.train_batch_size)] # ERM (equal weights)
-
-
-# -
-
 
