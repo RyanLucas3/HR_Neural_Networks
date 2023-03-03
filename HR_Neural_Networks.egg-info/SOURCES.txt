@@ -1,0 +1,10 @@
+LICENSE.txt
+README.md
+setup.cfg
+setup.py
+HR_Neural_Networks/HR.py
+HR_Neural_Networks.egg-info/PKG-INFO
+HR_Neural_Networks.egg-info/SOURCES.txt
+HR_Neural_Networks.egg-info/dependency_links.txt
+HR_Neural_Networks.egg-info/requires.txt
+HR_Neural_Networks.egg-info/top_level.txt
