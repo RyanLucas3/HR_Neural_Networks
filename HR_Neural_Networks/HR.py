@@ -8,8 +8,6 @@ import warnings
 import mosek
 import os
 import torch.nn as nn
-import time
-import warnings
 warnings.filterwarnings("ignore")
 os.environ['MOSEKLM_LICENSE_FILE'] = "mosek.lic"
 
