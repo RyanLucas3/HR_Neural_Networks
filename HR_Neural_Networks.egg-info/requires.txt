@@ -3,4 +3,3 @@ torchattacks
 numpy
 cvxpy
 torch
-warnings

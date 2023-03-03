@@ -1,9 +1,9 @@
 Metadata-Version: 2.1
 Name: HR-Neural-Networks
-Version: 1.0.2
+Version: 1.0.3
 Summary: Holistic Robust Neural Networks
 Home-page: https://github.com/RyanLucas3/HR_Neural_Networks
-Download-URL: https://github.com/RyanLucas3/HR_Neural_Networks/archive/refs/tags/v1.tar.gz
+Download-URL: https://github.com/RyanLucas3/HR_Neural_Networks/archive/refs/tags/1.0.3.tar.gz
 Author: Amine Bennouna, Bart Van Parys, Ryan Lucas
 Author-email: ryanlu@mit.edu
 License: MIT
