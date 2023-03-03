@@ -70,7 +70,6 @@ r_choice = 0.1
 ϵ_choice = 0.5
        
 HR = HR_Neural_Networks(NN_model = model,
-                        learning_approach = "HD",
                         train_batch_size = 128,
                         loss_fn = criterion,
                         normalisation_used = None,
