@@ -1,5 +1,0 @@
-mosek
-torchattacks
-numpy
-cvxpy
-torch
