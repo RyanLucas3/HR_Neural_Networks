@@ -1,4 +1,4 @@
-# Holistic Robust Neural Networks (HR)
+# Holistic Robust (HR) Neural Networks
 
 <p align="left">
   <img width="150" height="40" src="Misc/python.svg">
@@ -10,7 +10,7 @@
 pip install HR_Neural_Networks
 ```
 
-### This code base is an open-source implementation of "Certified Robust Neural Networks: Generalization and Corruption Resistance".
+### This code base is an open-source implementation of the paper ["Certified Robust Neural Networks: Generalization and Corruption Resistance"](https://arxiv.org/pdf/2303.02251.pdf).
 
 Holistic Robust Learning (HR) is a learning approach which provides _certified_ protection against data poisoning and evasion attacks, while enjoying _guaranteed_ generalization. HR minimizes a loss function that is guaranteed to be an upper bound on the out-of-sample performance of the trained networks with high probability. Hence, when training with HR, the out-of-sample performance is at least as good as the observed in-sample performance. This is both guaranteed theoretically and verified empirically.
 Robustness is controlled by three parameters: 
