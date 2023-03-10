@@ -112,4 +112,15 @@ The parameters $\mathcal{N}, r$ and $\alpha$ hence are important design choices 
 The HR loss is also proven to be a ``tight'' upper bound. That is, corruption and generalization are efficiently captured and the provided robustness is not overly conservative. In particular, HR captures efficiently the interaction between generalization and corruption. 
 For example, when used in conjunction $\mathcal{N}$ and $r$ can provide protection to the well-known phenomenon of  [robust overfitting](https://arxiv.org/abs/2002.11569), where adversarial training exhibit severe overfitting.
 
+## Reference
+```
+@article{bennouna2023certified,
+  title={Certified Robust Neural Networks: Generalization and Corruption Resistance},
+  author={Bennouna, Amine and Lucas, Ryan and Van Parys, Bart},
+  journal={arXiv preprint arXiv:2303.02251},
+  year={2023}
+}
+```
+
+Please contact amineben@mit.edu and ryanlu@mit.edu if you have any question about the paper or the codes.
 
