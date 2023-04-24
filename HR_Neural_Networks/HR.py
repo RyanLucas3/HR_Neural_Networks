@@ -8,6 +8,8 @@ import warnings
 import mosek
 import os
 import torch.nn as nn
+import time
+import warnings
 warnings.filterwarnings("ignore")
 os.environ['MOSEKLM_LICENSE_FILE'] = "mosek.lic"
 
@@ -24,6 +26,7 @@ class HR_Neural_Networks:
                  adversarial_steps=10,
                  adversarial_step_size=0.2,
                  noise_set = "l-2",
+                 defense_method = "PGD",
                  output_return = "pytorch_loss_function"
                  ):
 
@@ -36,6 +39,7 @@ class HR_Neural_Networks:
         self.noise_set = noise_set
         self.learning_approach = learning_approach
         self.output_return = output_return
+        self.defense_method = defense_method
  
         if loss_fn == None:
             print("Loss is defaulted to cross entropy loss. Consider changing if not doing classification.")
@@ -52,7 +56,7 @@ class HR_Neural_Networks:
         
         # Handling choice of r
         if r_choice == 0 and α_choice != 0:
-            self.r_choice = 0.001 # For numerical stability. 0 or very small values of r cause problems.
+            self.r_choice = 0.001 # For numerical stability. 0 or very small values of r cause algorithm to be slow.
         else:
             self.r_choice = r_choice
             
@@ -189,21 +193,36 @@ class HR_Neural_Networks:
     def _initialise_adversarial_setup(self):
         
         if self.noise_set == "l-2":
+            
+            if self.defense_method == "PGD":
 
-            self.adversarial_attack_train = torchattacks.PGDL2(self.NN_model,
-                                                               eps=self.ϵ_choice,
-                                                               alpha=self.adversarial_step_size,
-                                                               steps=self.adversarial_steps,
-                                                               random_start=True,
-                                                               eps_for_division=1e-10)
+                self.adversarial_attack_train = torchattacks.PGDL2(self.NN_model,
+                                                                   eps=self.ϵ_choice,
+                                                                   alpha=self.adversarial_step_size,
+                                                                   steps=self.adversarial_steps,
+                                                                   random_start=True,
+                                                                   eps_for_division=1e-10)
+                
+            elif self.defense_method == "FFGSM":
+                
+                raise Exception("FGSM for l-2 defense not currently supported")
+                
             
         elif self.noise_set == "l-inf":
             
-            self.adversarial_attack_train = torchattacks.attacks.pgd.PGD(self.NN_model,
-                                             eps=self.ϵ_choice,
-                                             alpha=self.adversarial_step_size,
-                                             steps=self.adversarial_steps,
-                                             random_start=True)
+            if self.defense_method == "PGD":
+
+                self.adversarial_attack_train = torchattacks.attacks.pgd.PGD(self.NN_model,
+                                                 eps=self.ϵ_choice,
+                                                 alpha=self.adversarial_step_size,
+                                                 steps=self.adversarial_steps,
+                                                 random_start=True)
+            
+            elif self.defense_method == "FFGSM":
+
+                self.adversarial_attack_train = torchattacks.FFGSM(self.NN_model, 
+                                                                   eps=self.ϵ_choice, 
+                                                                   alpha=self.adversarial_step_size)
 
 
     def HR_criterion(self, inputs = None, 
