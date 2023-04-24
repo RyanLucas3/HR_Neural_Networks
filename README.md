@@ -85,7 +85,7 @@ def train(HR, model, device, train_loader, optimizer, epoch):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
 
-        HR_loss, _ = HR.HR_criterion(inputs, targets, device)
+        HR_loss, _ = HR.HR_criterion(inputs = data, targets = target, device = device)
 
         HR_loss.backward()
         optimizer.step()
