@@ -63,7 +63,7 @@ criterion = F.cross_entropy(reduction = 'none') # note the change from mean -> n
 
 ########### HR Model Instantiation ###############
 
-from HR import * 
+from HR_Neural_Networks.HR import * 
 
 α_choice = 0.05 
 r_choice = 0.1
