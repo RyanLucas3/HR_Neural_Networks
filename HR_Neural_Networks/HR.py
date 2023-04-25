@@ -300,8 +300,8 @@ class HR_Neural_Networks:
  
 
             weights = Variable(torch.from_numpy(self.p.value),
-                               requires_grad=True).to(device).to(torch.float32) # Converting primal weights to tensors
-            
+                               requires_grad=True).to(torch.float32).to(device) # Converting primal weights to tensors
+   
             
             if self.output_return == "pytorch_loss_function":
             
