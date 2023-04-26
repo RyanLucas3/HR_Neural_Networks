@@ -35,6 +35,8 @@ HR can be implemented for neural network training with minimal disruption to typ
 
 ```python
 
+import torch.nn.functional as F
+
 criterion = F.cross_entropy(reduction = 'mean')
 
 def train(model, device, train_loader, optimizer, epoch):
@@ -58,6 +60,8 @@ You can install HR simply with a `pip` command
 Training with the HR loss requires then only to change one line of the training code.
 
 ```python
+
+import torch.nn.functional as F
 
 criterion = F.cross_entropy(reduction = 'none') # note the change from mean -> none
 
