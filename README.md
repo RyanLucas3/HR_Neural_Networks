@@ -54,7 +54,7 @@ def train(model, device, train_loader, optimizer, epoch):
 You can install HR simply with a `pip` command
 
 ```python
-!pip install HR_Neural_Networks
+pip install HR_Neural_Networks
 ```
 
 Training with the HR loss requires then only to change one line of the training code.
