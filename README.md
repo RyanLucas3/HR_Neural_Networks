@@ -35,9 +35,9 @@ HR can be implemented for neural network training with minimal disruption to typ
 
 ```python
 
-import torch.nn.functional as F
+import torch.nn as nn
 
-criterion = F.cross_entropy(reduction = 'mean')
+criterion = nn.CrossEntropyLoss(reduction="none")
 
 def train(model, device, train_loader, optimizer, epoch):
     model.train()
