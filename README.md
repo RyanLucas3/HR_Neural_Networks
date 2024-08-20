@@ -61,7 +61,7 @@ Training with the HR loss requires then only to change one line of the training 
 
 ```python
 
-import torch.nn.functional as F
+import torch.nn as nn
 
 criterion = nn.CrossEntropyLoss(reduction = 'none') # note the change from mean -> none
 
